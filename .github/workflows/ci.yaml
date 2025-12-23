@@ -1,0 +1,50 @@
+# https://dev.yunnan.ws/en/blog/github-actions-macos-high-version-compile-compatible-low-version
+
+name: macOS Basic Example
+
+on:
+    push:
+        tags:
+            - "v*" # Trigger on push events to tags matching v*, i.e., v1.0, v20.15.10
+
+jobs:
+    build:
+        # Specifies that this job should run on the latest macOS runner
+        # macos-14, macos-15(macos-latest)
+        runs-on: macos-14-intel
+        permissions:
+            contents: write # Required to create the release
+
+        steps:
+            # Step 1: Check out the repository code
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0 # Optional: fetches all history for some advanced actions
+
+            # Step 2: Run a simple shell command to show the macOS version
+            - name: Display macOS version
+              run: sw_vers && uname -a
+              shell: bash
+
+            # Step 3: Run a simple script
+            - name: Run a shell script
+              run: |
+                  make && ls -F && ./ft_nm ./ft_otool
+                  tar zcvf ft_nm_otool_arm64-osx.tar.gz ft_nm ft_otool
+              shell: bash
+
+            - name: Create Release
+              id: create_release
+              uses: softprops/action-gh-release@v2 # A popular action for creating releases
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # The GitHub Actions built-in token
+              with:
+                  tag_name: ${{ github.ref }}
+                  name: Release ${{ github.ref }}
+                  body: |
+                      ### Changes in this Release
+                      * First Change
+                      * Second Change
+                  files: ft_nm_otool_arm64-osx.tar.gz # Path to the built binary
+                  draft: false # Set to true to create a draft release
+                  prerelease: true # Set to true for a pre-release

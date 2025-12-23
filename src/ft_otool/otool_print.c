@@ -83,7 +83,7 @@ int	otool_print_fn(t_bin *b)
 	{
 		ft_printf("%s", b->parent->fn);
 		if ((ft_strcmp(b->arch, HOST_ARCH) != 0) &&
-				(b->arch != EMPTY_STRING))
+				ft_strcmp(b->arch, EMPTY_STRING) != 0)
 			ft_printf(" (architecture %s)", b->arch);
 		ft_printf(":\n");
 	}
